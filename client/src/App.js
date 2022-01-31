@@ -1,9 +1,14 @@
 import './App.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import {Routes,Route} from "react-router-dom"
+import LoginPage from './pages/LoginPage';
 
 function App() {
   return (
     <div className="App">
-      <h1>Hellloooo</h1>
+        <Routes>
+          <Route exact path ="/" element={<LoginPage />} />
+        </Routes>
     </div>
   );
 }
