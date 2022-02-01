@@ -1,7 +1,6 @@
 const express = require("express");
 const app = express();
-const dotenv = require("dotenv")
-dotenv.config();
+require("dotenv").config()
 const cookieParser = require("cookie-parser");
 const adminRoute = require('./routes/adminRoute');
 const teacherRoute = require('./routes/teacherRoute');
@@ -11,6 +10,7 @@ require('./model/connection');
 
 app.use(express.json());
 app.use(express.urlencoded({extended:true}))
+app.use(cookieParser())
 
 
 app.use('/admin',adminRoute);
