@@ -9,6 +9,8 @@ function auth(req,res,next){
             return res.status(401).json({errorMessage:"unauthorised"})
         }
 
+        //verify token
+
         const verified = jwt.verify(token,process.env.JWT_SECRET)
         req.user = verified.user;
         console.log(req.user);
