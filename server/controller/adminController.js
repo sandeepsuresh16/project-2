@@ -42,17 +42,6 @@ module.exports = {
         }).json({success:true})
 
         console.log('Admin logged IN')
-
-    //     //create token
-    //  const token = jwt.sign({
-    //     user:'admin'
-    //     },process.env.JWT_SECRET)
-    
-    // //send the http-only cookie
-    // res.cookie("token",token,{
-    //     httpOnly:true
-    // }).send()
-    // console.log('Admin logged in')
     },
 
     loggedIn :(req,res)=>{

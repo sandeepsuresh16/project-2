@@ -1,0 +1,33 @@
+.header{
+    width: auto;
+    display: flex;
+    margin-left: 250px;
+    padding-right: 20px;
+    padding-left: 20px;
+    height: 60px;
+    justify-content: space-between;
+    align-items: center;
+    background-image:linear-gradient(to right, #5433ff, #20bdff, #a5fecb);
+    
+}
+
+.header h3,h5{
+    font-size: 20px;
+    font-weight: 600;
+    color: white;
+}
+
+.header img{
+    max-width: 40px;
+    border-radius: 50%;
+    
+}
+.header-right .user-logo{
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.header-right h5{
+    display: inline-block;
+    cursor: pointer;
+}
