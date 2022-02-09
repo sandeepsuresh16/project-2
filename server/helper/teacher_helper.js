@@ -1,3 +1,4 @@
+const STUDENT = require('../model/register_student')
 const TEACHER = require('../model/register_teacher')
 
 module.exports = {
@@ -17,5 +18,18 @@ module.exports = {
 
         })
         
+    },
+
+    getAttendance : (date)=>{
+        return new Promise(async(resolve,reject)=>{
+            try {
+                const qrData = await STUDENT.aggregate([{$match:{date}}])
+                console.log(qrData)
+                resolve({query:true,date:qrData})
+            } catch (error) {
+                console.log(error)
+                resolve({query:false})
+            }
+        }) 
     }
 }

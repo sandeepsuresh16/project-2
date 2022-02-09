@@ -3,11 +3,16 @@ const dotenv = require('dotenv');
 const TEACHER = require('../model/register_teacher')
 const bcrypt = require('bcryptjs')
 const {SUBJECT,CLASS} = require('../model/register_class')
+const {ATTENDANCE_STUDENT,ATTENDANCE_STAFF} = require('../model/register_attendence')
 let ObjectId = require('mongoose').Types.ObjectId
 const STUDENT = require('../model/register_student')
+const BOOK = require('../model/register_book')
 const STUDENT_HELPER = require('../helper/student_helper')
 const TEACHER_HELPER = require('../helper/teacher_helper')
 const VALIDATE_HELPER = require('../helper/validator')
+const ATTENDANCE_MARKED_HELPER = require('../helper/attendance_helper')
+const DATE = require('../helper/formatDate_helper')
+
 
 dotenv.config();
 
@@ -32,21 +37,36 @@ module.exports = {
         },process.env.JWT_SECRET)
 
         //send the http only cookie
-        res.cookie("token",token,{
+        res.status(200).cookie("token",token,{
             httpOnly:true
-        }).send()
+        }).json({success:true})
 
         console.log('Admin logged IN')
+
+    //     //create token
+    //  const token = jwt.sign({
+    //     user:'admin'
+    //     },process.env.JWT_SECRET)
+    
+    // //send the http-only cookie
+    // res.cookie("token",token,{
+    //     httpOnly:true
+    // }).send()
+    // console.log('Admin logged in')
     },
 
     loggedIn :(req,res)=>{
         try{
+            console.log('1')
             const token = req.cookies.token
-            if(!token)
+            if(!token){
+                console.log('1.1')
                 return res.status(200).json(false)
+            }
             
             const verified = jwt.verify(token,process.env.JWT_SECRET)
             if(verified){
+                console.log('1.2')
                 if(verified.user=="admin")
                    return res.status(200).json(true)
                 else   
@@ -331,7 +351,112 @@ module.exports = {
         } catch (error) {
             
         }
-    }
+    },
 
+    studentPromote:async(req,res)=>{
+        const data = await STUDENT_HELPER.promoteStudent(req.body.id)
+        if(data.query){
+            res.status(200).json({success:true})
+        }else
+            res.status(400).json({success:false})
+    },
+
+    bookAdd: async(req,res)=>{
+        try {
+            const {title,author,isbn,price,category,quantity,description} = req.body 
+            if(!title||!author||!isbn||!price||!category||!quantity||!description)
+                return res.status(400).json({errorMessage:"Please enter all fields"})
+
+            const existingIsbn = await BOOK.findOne({isbn})
+            if(existingIsbn)
+                return res.status(400).json({errorMessage:"A book with this ISBN already exists"})
+
+            if(price<1 || quantity<1)
+                return res.status(400).json({errorMessage:"negative numbers not allowed"})
+
+            const newBook = new BOOK({title,author,isbn,price,category,quantity,description})
+
+            const addedBook = await newBook.save()
+
+            return res.status(200).json({success:true,data:addedBook})
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({error:"internal error"})
+        }
+    },
+
+    bookEdit: async(req,res)=>{
+        try {
+            const {id,title,author,isbn,price,category,quantity,description} = req.body 
+            if(!title||!author||!isbn||!price||!category||!quantity||!description)
+                return res.status(400).json({errorMessage:"Please enter all fields"})
+
+            if(price<1 || quantity<1)
+                return res.status(400).json({errorMessage:"negative numbers not allowed"}) 
+            
+            const result = await BOOK.updateOne({_id:ObjectId(id)},{$set:{title,author,isbn,price,category,quantity,description}})
+            if(result.modifiedCount > 0)
+                return res.status(200).json({success:true})
+            else
+                return res.status(400).json({success:false})
+            
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({error:"internal error"})
+        }
+    },
+
+    staffAttandance:async(req,res)=>{
+        try {
+            const {absent} = req.body;
+            const data= await ATTENDANCE_MARKED_HELPER.markedAttendance(ATTENDANCE_STAFF)
+
+            if(data.marked){
+                return res.status(400).json({success:false,errorMessage:"Attendance already marked"})
+            }
+
+            const staffAbsent = new ATTENDANCE_STAFF({
+                absent,
+                date:DATE(new Date())
+            })
+            const newEntry = await staffAbsent.save()
+
+            res.status(200).json({success:true,data:newEntry})
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({errorMessage:"Internal error"})
+        }
+    },
+
+    studentAttandance:async(req,res)=>{
+        try {
+            const {absent,className,division} = req.body;
+            const data= await ATTENDANCE_MARKED_HELPER.markedAttendanceStudent(ATTENDANCE_STUDENT,className,division)
+
+            if(data.marked){
+                return res.status(400).json({success:false,errorMessage:"Attendance already marked"})
+            }
+
+            const studentAbsent = new ATTENDANCE_STUDENT({absent,className,division,date:DATE(new Date())})
+            const newEntry = await studentAbsent.save()
+            
+            res.status(200).json({success:true,data:newEntry})
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({errorMessage:"Internal error"})
+        }
+    },
+
+    getStaffAttandeance:async(req,res)=>{
+        try {
+            const {date} = req.query;
+            const data = await TEACHER_HELPER.getAttendance(date)
+            console.log(date)
+            console.log(data.data)
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({errorMessage:"Internal error"})
+        }
+    }
 
 }

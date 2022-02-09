@@ -1,4 +1,5 @@
 const STUDENT = require('../model/register_student')
+const ObjectId = require('mongoose').Types.ObjectId
 
 module.exports = {
 
@@ -48,5 +49,43 @@ module.exports = {
             }
         })
 
+    },
+
+    promoteStudent: (id)=>{
+        return new Promise(async(resolve,reject)=>{
+            try {
+                const student = await STUDENT.aggregate([{$match:{_id:ObjectId(id)}}])
+                
+                let className = student[0].className
+                if(className=="LKG" || className=="UKG"){
+                    if(className=="LKG")
+                        className="UKG"
+                    else if(className=="UKG")
+                        className=1    
+                    console.log(className);   
+                    await STUDENT.updateOne({_id:ObjectId(id)},{$set:{className:className.toString()}})
+                    resolve({query:true})
+                    return
+                }else{
+                    className = parseInt(className)
+                    if(className>=1 && className<12){
+                        className +=1
+                        console.log(className);
+                        await STUDENT.updateOne({_id:ObjectId(id)},{$set:{className:className.toString()}})
+                        resolve({query:true})
+                        return                        
+                    }else{
+                        console.log(className);
+                        resolve({query:false})
+                        return   
+                    }
+                }
+            } catch (error) {
+                console.log(error)
+                resolve({query:false})
+            }
+        })
     }
+
+
 }

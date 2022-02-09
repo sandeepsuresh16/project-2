@@ -3,9 +3,12 @@ const router = express.Router();
 const ADMIN_CONTROLLER = require('../controller/adminController')
 const auth = require('../middleware/auth')
 const paginatedResult = require('../middleware/paginatedResultTeacher');
+const markedAttendance = require('../middleware/attendanceMarked')
 const TEACHER = require("../model/register_teacher");
 const {CLASS} =  require('../model/register_class')
 const STUDENT = require('../model/register_student')
+const BOOK = require('../model/register_book')
+const {ATTENDANCE_STAFF, ATTENDANCE_STUDENT} = require('../model/register_attendence')
 
 
 //admin login
@@ -54,6 +57,35 @@ router.get('/student',auth,paginatedResult(STUDENT),(req,res)=>{
 router.get('/student-search',auth,(req,res)=>ADMIN_CONTROLLER.studentSearch(req,res))
 //edit student
 router.put('/student-edit',auth,(req,res)=>ADMIN_CONTROLLER.studentEdit(req,res))
+//get student promotion list
+router.get('/student-promotionList',auth,paginatedResult(STUDENT),(req,res)=>{
+    res.status(200).json({data:res.paginatedResult})
+})
+//promote student
+router.put('/promote-student',auth,(req,res)=>ADMIN_CONTROLLER.studentPromote(req,res))
+
+
+//get books
+router.get('/book',auth,paginatedResult(BOOK),(req,res)=>{
+    res.status(200).json({data:res.paginatedResult})
+})
+//add new book
+router.post('/book-add',auth,(req,res)=>ADMIN_CONTROLLER.bookAdd(req,res))
+//edit book
+router.put('/book-edit',auth,(req,res)=>ADMIN_CONTROLLER.bookEdit(req,res))
+
+// check if staff attendance is marked for today
+router.get('/attendance-staff-marked',auth,markedAttendance(ATTENDANCE_STAFF))
+// check if student attendance is marked for today
+router.get('/attendance-student-marked',auth,markedAttendance(ATTENDANCE_STUDENT))
+//mark staff attandance
+router.post('/attendance-staff',auth,(req,res)=>ADMIN_CONTROLLER.staffAttandance(req,res))
+//mark Student attendance
+router.post('/attendance-student',auth,(req,res)=>ADMIN_CONTROLLER.studentAttandance(req,res))
+//get date-wise attendace -staff
+router.get('/attendance-staff',auth,(req,res)=>ADMIN_CONTROLLER.getStaffAttandeance(req,res))
+//get date-wise attendance -student
+
 
 
 module.exports = router;
