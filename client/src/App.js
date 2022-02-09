@@ -3,7 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import LoginPage from './pages/LoginPage';
 import SideMenu from './components/side-menu/SideMenu';
 import Header from './components/header/Header';
-import { useContext } from 'react';
+import React, { useContext } from 'react';
 import { BrowserRouter,Routes,Route,Navigate} from "react-router-dom";
 import AdminDashboard from './pages/AdminDashboard';
 import HR from './pages/admin/HR';
@@ -18,6 +18,7 @@ function App() {
   
   return (
     <div className="App">
+         
          
      
      <BrowserRouter>   

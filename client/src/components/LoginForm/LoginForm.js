@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Row from "react-bootstrap/Row"
 import Col from "react-bootstrap/Col"
 import Button from "react-bootstrap/Button"
@@ -6,11 +6,12 @@ import Container from "react-bootstrap/Container"
 import Form from "react-bootstrap/Form"
 import './LoginForm.css'
 import axios from '../../axios';
+import AuthContext from '../../context/AuthContext';
 
 
 
 function LoginForm() {
-
+    const {getAdminLoggedIn} =useContext(AuthContext)
     const initialValue = {username:"",password:""}
     const [formValue, setFormValue] = useState(initialValue);
     const [formErrors, setFormErrors] = useState({});
@@ -44,6 +45,8 @@ function LoginForm() {
             console.log(e)
             setErrorMessage(e.response.data.errMsg)
         }
+
+        getAdminLoggedIn()
         
     }
 
